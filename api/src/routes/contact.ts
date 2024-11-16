@@ -1,5 +1,6 @@
-import express from "express"; 
+import express, { Request, Response } from "express"; 
 import prisma from "../db";
+import { authenticateToken } from "../middleware";
 
 
 
@@ -8,12 +9,13 @@ const router = express.Router();
 
 
 
-router.get('/view', async(request, response)=>{
+router.get('/view',authenticateToken,async(request, response)=>{
 
 
     try{
-      const body = request.body;  //still protected; 
-      const userId = body.userId; 
+      const body = request.body;  //still protected;
+      //@ts-ignore
+      const userId = request.userId;
       if (!userId){
         return response.status(401).json({
           message:"User not found",
@@ -40,9 +42,16 @@ router.get('/view', async(request, response)=>{
 
 
 
-router.post('/create', async (request,response)=>{
+router.post('/create',authenticateToken, async (request:Request,response:Response)=>{
     try {
-        const {firstName, lastName, email, phone, company, jobTitle,userId}= request.body;
+        const {firstName, lastName, email, phone, company, jobTitle}= request.body;
+       
+        //@ts-ignore
+        const userId = request.userId; 
+       
+        
+        console.log(userId); 
+
 
 
         if(!userId){
@@ -60,7 +69,9 @@ router.post('/create', async (request,response)=>{
                 phone, 
                 company,
                 jobTitle,
-                userId
+                //@ts-ignoreE
+                // userId:request.user.userId,
+                userId,
     
             }
         })
@@ -81,11 +92,16 @@ router.post('/create', async (request,response)=>{
 
 
 
-router.put('/update/:id', async (request, response) => {
+router.put('/update/:id',authenticateToken, async (request, response) => {
+
+
     try {
+    
       const { id } = request.params; 
       const updateData = request.body; 
-      const userId = updateData.userId; //after do it using jwt
+      // const userId = updateData.userId; //after do it using jwt
+      //@ts-ignore
+      const userId = request.userId;
 
       if(!userId){
         return response.status(404).json({
@@ -124,11 +140,13 @@ router.put('/update/:id', async (request, response) => {
   });
 
 
-  router.delete('/delete/:id', async (request, response) => {
+  router.delete('/delete/:id',authenticateToken, async (request, response) => {
     try {
       const { id } = request.params; 
+      //@ts-ignore
+      const userId = request.userId; 
+      console.log(userId); 
 
-      const {userId} = request.body; 
 
       if (!userId){
         return response.status(404).json({

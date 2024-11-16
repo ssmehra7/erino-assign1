@@ -35,8 +35,15 @@ const Dashboard = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get(`${backend_url}/api/v1/contact/view`);
-      setContacts(response.data);
+      const response = await axios.get(`${backend_url}/api/v1/contact/view`,{
+        headers:{
+          //@ts-ignore
+        "Authorization":"fdf60d74-c5f2-4a5f-bf71-40af09e59908",
+        }
+      });
+      const data = Array.isArray(response.data) ? response.data : [];
+      //@ts-ignore
+      setContacts(data);
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }

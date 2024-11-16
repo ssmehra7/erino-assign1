@@ -5,6 +5,8 @@ import Profile from "./pages/Profile"
 import Dashboard from "./pages/Dashboard"
 import Landing from "./pages/Landing"
 
+import CreateContact from "./pages/Create"
+
 
 function App() {
  
@@ -18,6 +20,7 @@ function App() {
             <Route path="/signup" element = {<Signup/>}/>
             <Route path= "/profile" element ={<Profile/>}/>
             <Route path = "/dashboard" element = {<Dashboard/>}/>
+            <Route path = "/create" element = {<CreateContact/>}/>
         </Routes>
       </BrowserRouter>
     </div>

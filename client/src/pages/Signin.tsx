@@ -37,6 +37,7 @@ const SignIn = () => {
     let isValid = true;
     const newErrors = { email: false, password: false };
 
+    // Validate the form inputs
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = true;
       isValid = false;
@@ -50,12 +51,26 @@ const SignIn = () => {
 
     if (isValid) {
       try {
+        // Make the API request to sign in
         const response = await axios.post(
           `${backend_url}/api/v1/auth/signin`,
           { email, password }
         );
+
         console.log("Response Data:", response.data);
-        alert("Sign-in successful!");
+
+        // Extract the token from the response
+        const token = response.data.token;
+
+        // Store the token in localStorage
+        if (token) {
+          localStorage.setItem("token", token);
+          alert("Sign-in successful!");
+          // Optionally, you can redirect the user to another page
+          // window.location.href = '/dashboard'; // or use React Router's navigate
+        } else {
+          alert("No token received. Please try again.");
+        }
       } catch (error) {
         console.error("Error during sign-in:", error);
         alert("Sign-in failed. Please check your credentials.");

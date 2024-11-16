@@ -1,221 +1,236 @@
-import React, { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TablePagination,
-  IconButton,
-  TextField,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Tooltip,
-} from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
-import axios from "axios";
+// // import * as React from 'react';
+// import { DataGrid, GridColDef } from '@mui/x-data-grid';
+// import Paper from '@mui/material/Paper';
+// import { useEffect, useState } from 'react';
+// import axios from 'axios';
+
+// const backend_url = import.meta.env.VITE_APP_BACKEND_URL;
+
+// const columns: GridColDef[] = [
+//   { field: 'id', headerName: 'ID', width: 70 },
+//   { field: 'firstName', headerName: 'First name', width: 130 },
+//   { field: 'lastName', headerName: 'Last name', width: 130 },
+//   {
+//     field: 'age',
+//     headerName: 'Age',
+//     type: 'number',
+//     width: 90,
+//   },
+//   {
+//     field: 'fullName',
+//     headerName: 'Full name',
+//     description: 'This column has a value getter and is not sortable.',
+//     sortable: false,
+//     width: 160,
+//     valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
+//   },
+//   {
+//     field: 'phone',
+//     headerName: 'Phone',
+//     description: 'This column has phone',
+//     sortable: false,
+//     width: 160,
+//     valueGetter: (row)=>`${row.phone}`
+//   },
+//   {
+//     field: 'email',
+//     headerName: 'Email',
+//     description: 'This column has a value getter and is not sortable.',
+//     sortable: false,
+//     width: 160,
+//     valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
+//   },
+//   {
+//     field: 'Company',
+//     headerName: 'Company',
+//     description: 'This column has a value getter and is not sortable.',
+//     sortable: false,
+//     width: 160,
+//     valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
+//   },
+//   {
+//     field: 'Job Title',
+//     headerName: 'Job Title',
+//     description: 'This column has a value getter and is not sortable.',
+//     sortable: false,
+//     width: 160,
+//     valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
+//   },
+// ];
+
+
+
+// // 
+// const paginationModel = { page: 0, pageSize: 5 };
+
+// interface contactType{
+
+//   firstName:string; 
+//   lastName:string; 
+//   phone:string; 
+//   email:string; 
+//   jobTitle:string; 
+//   company:string;
+
+// }
+
+
+
+// export default function Dashboard() {
+
+//   const [rows,setRows] = useState<contactType[]>([]);
+
+//   const handleReponse = async()=>{
+//     const response = await axios.get(`${backend_url}/api/v1/contact/view`,{
+//       headers:{
+//         "Authorization":"Bearer "+localStorage.getItem("token"),
+//       }
+//     }); 
+
+//     const contacts = response.data; 
+
+
+//     const formattedContacts = contacts.map((contact:any)=>({
+//       firstName: contact.firstName,
+//     lastName: contact.lastName,
+//     phone: contact.phone,
+//     email: contact.email,
+//     jobTitle: contact.jobTitle,
+//     company: contact.company,
+//     }))
+
+//       setRows(formattedContacts);
+//     console.log(response.data); 
+
+
+
+//   }
+//   useEffect(()=>{
+//     handleReponse();
+//   },[])
+
+//   // const rows = [
+//   //   //   { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
+//   //   //   { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
+//   //   //   { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
+//   //   //   { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
+//   //   //   { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
+//   //   //   { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
+//   //   //   { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
+//   //   //   { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
+//   //   //   { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+//   //   // ];
+    
+
+
+
+//   return (
+//     <Paper sx={{ height: 400, width: '100%' }}>
+//       <DataGrid
+//         rows={rows}
+//         columns={columns}
+//         initialState={{ pagination: { paginationModel } }}
+//         pageSizeOptions={[5, 10]}
+//         checkboxSelection
+//         sx={{ border: 0 }}
+//       />
+//     </Paper>
+//   );
+// }
+
+
+
+import React, { useEffect, useState } from 'react';
+import { DataGrid, GridColDef, GridValueGetter } from '@mui/x-data-grid';
+import Paper from '@mui/material/Paper';
+import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_APP_BACKEND_URL;
 
-const Dashboard = () => {
-  const [contacts, setContacts] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [editingContact, setEditingContact] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+interface ContactType {
+  id: string;  // Added id field which is required by DataGrid
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  jobTitle: string;
+  company: string;
+}
 
-  useEffect(() => {
-    fetchContacts();
-  }, []);
+const columns: GridColDef[] = [
+  { field: 'id', headerName: 'ID', width: 70 },
+  { field: 'firstName', headerName: 'First name', width: 130 },
+  { field: 'lastName', headerName: 'Last name', width: 130 },
+  { field: 'phone', headerName: 'Phone', width: 130 },
+  { field: 'email', headerName: 'Email', width: 200 },
+  { field: 'company', headerName: 'Company', width: 160 },
+  { field: 'jobTitle', headerName: 'Job Title', width: 160 },
+  {
+    field: 'fullName',
+    headerName: 'Full name',
+    description: 'This column has a value getter and is not sortable.',
+    sortable: false,
+    width: 160,
+    valueGetter: (params: GridValueGetter,row) => 
+      `${row.firstName || ''} ${row.lastName || ''}`
+  }
+];
 
-  const fetchContacts = async () => {
+export default function Dashboard() {
+  const [rows, setRows] = useState<ContactType[]>([]);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  });
+
+  const handleResponse = async () => {
     try {
-      const response = await axios.get(`${backend_url}/api/v1/contact/view`,{
-        headers:{
-          //@ts-ignore
-        "Authorization":"fdf60d74-c5f2-4a5f-bf71-40af09e59908",
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.get(`${backend_url}/api/v1/contact/view`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
         }
       });
-      const data = Array.isArray(response.data) ? response.data : [];
-      //@ts-ignore
-      setContacts(data);
+      // console.log(response.data); 
+      const contacts:[] = response.data.contacts;
+      const formattedContacts = contacts.map((contact: any) => ({
+        id: contact.id, // Adding required id field
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        phone: contact.phone,
+        email: contact.email,
+        jobTitle: contact.jobTitle,
+        company: contact.company,
+      }));
+
+      console.log(formattedContacts); 
+
+      setRows(formattedContacts);
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${backend_url}/api/v1/contact/delete/${id}`);
-      setContacts(contacts.filter((contact) => contact.id !== id));
-    } catch (error) {
-      console.error("Error deleting contact:", error);
-    }
-  };
-
-  const handleEditOpen = (contact) => {
-    setEditingContact(contact);
-    setOpenDialog(true);
-  };
-
-  const handleEditClose = () => {
-    setEditingContact(null);
-    setOpenDialog(false);
-  };
-
-  const handleSave = async () => {
-    try {
-      await axios.put(`${backend_url}/api/v1/contact/update/${editingContact.id}`, {
-        ...editingContact,
-      });
-      fetchContacts(); // Refresh the contact list
-      handleEditClose();
-    } catch (error) {
-      console.error("Error updating contact:", error);
-    }
-  };
-
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+  useEffect(() => {
+    handleResponse();
+  }, []);
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden", padding: 2 }}>
-      <TableContainer>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Company</TableCell>
-              <TableCell>Job Title</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {contacts
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell>{contact.firstName}</TableCell>
-                  <TableCell>{contact.lastName}</TableCell>
-                  <TableCell>{contact.email}</TableCell>
-                  <TableCell>{contact.phone}</TableCell>
-                  <TableCell>{contact.company || "N/A"}</TableCell>
-                  <TableCell>{contact.jobTitle || "N/A"}</TableCell>
-                  <TableCell>
-                    <Tooltip title="Edit">
-                      <IconButton
-                        color="primary"
-                        onClick={() => handleEditOpen(contact)}
-                      >
-                        <Edit />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <IconButton
-                        color="error"
-                        onClick={() => handleDelete(contact.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={contacts.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
+    <Paper sx={{ height: 400, width: '100%' }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        pageSizeOptions={[5, 10]}
+        checkboxSelection
+        sx={{ border: 0 }}
       />
-
-      {/* Edit Dialog */}
-      <Dialog open={openDialog} onClose={handleEditClose}>
-        <DialogTitle>Edit Contact</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="First Name"
-            value={editingContact?.firstName || ""}
-            onChange={(e) =>
-              setEditingContact({ ...editingContact, firstName: e.target.value })
-            }
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Last Name"
-            value={editingContact?.lastName || ""}
-            onChange={(e) =>
-              setEditingContact({ ...editingContact, lastName: e.target.value })
-            }
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Email"
-            value={editingContact?.email || ""}
-            onChange={(e) =>
-              setEditingContact({ ...editingContact, email: e.target.value })
-            }
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Phone"
-            value={editingContact?.phone || ""}
-            onChange={(e) =>
-              setEditingContact({ ...editingContact, phone: e.target.value })
-            }
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Company"
-            value={editingContact?.company || ""}
-            onChange={(e) =>
-              setEditingContact({ ...editingContact, company: e.target.value })
-            }
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Job Title"
-            value={editingContact?.jobTitle || ""}
-            onChange={(e) =>
-              setEditingContact({ ...editingContact, jobTitle: e.target.value })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleEditClose}>Cancel</Button>
-          <Button onClick={handleSave} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Paper>
   );
-};
-
-export default Dashboard;
+}

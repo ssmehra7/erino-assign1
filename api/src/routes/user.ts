@@ -1,5 +1,7 @@
 
 import express from "express"
+import { authenticateToken } from "../middleware";
+import prisma from "../db";
 
 const router = express.Router(); 
 
@@ -15,11 +17,19 @@ router.get('/',(request,response)=>{
 })
 
 
-router.get('/profile',(request,response)=>{
+router.get('/profile',authenticateToken,async (request,response)=>{
+    //@ts-ignore
+    const userId =request.userId;
 
-    console.log("Hi from the profile")
+    const user = await prisma.user.findUnique({
+        where:{
+            id:userId,
+        }
+    })
+   
     return response.json({
-        message:"Hi from the user profile", 
+        message:"Hi from the user profile",
+        user 
     })
 })
 

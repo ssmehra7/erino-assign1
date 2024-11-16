@@ -25,7 +25,7 @@ This is a full-stack application for managing contacts, including functionalitie
    - Create a `.env` file in the `api` folder with the following content:
      ```
      DATABASE_URL=your_postgresql_database_url
-     JWT_SECRET=your_secret_key
+     JWT_SECRET=jwt_secret
      ```
 
    - Generate the Prisma client:

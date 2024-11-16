@@ -1,3 +1,7 @@
+Here’s the updated `README.md` with the Prisma commands placed after the database URL setup:
+
+---
+
 # Contact Management System
 
 This is a full-stack application for managing contacts, including functionalities like user authentication, contact creation, viewing, updating, and deletion. It is built using **Express.js** for the backend and **React.js** for the frontend.
@@ -16,15 +20,32 @@ This is a full-stack application for managing contacts, including functionalitie
    npm install
    ```
 
-3. Run the development server:
+3. Set up Prisma and your PostgreSQL database:
+
+   - Create a `.env` file in the `api` folder with the following content:
+     ```
+     DATABASE_URL=your_postgresql_database_url
+     JWT_SECRET=your_secret_key
+     ```
+
+   - Generate the Prisma client:
+     ```bash
+     npx prisma generate
+     ```
+
+   - Apply the migrations to create the database tables:
+     ```bash
+     npx prisma migrate dev --name init
+     ```
+
+   - Install the Prisma Client:
+     ```bash
+     npm install @prisma/client
+     ```
+
+4. Run the development server:
    ```bash
    npm run dev
-   ```
-
-4. Create a `.env` file in the `api` folder with the following content:
-   ```
-   DATABASE_URL=your_postgresql_database_url
-   JWT_SECRET=your_secret_key
    ```
 
 5. Exposed APIs:
@@ -87,3 +108,4 @@ This is a full-stack application for managing contacts, including functionalitie
 
 - [x] Backend API routes implemented for authentication and contact management.
 - [x] Basic frontend routes set up.
+
